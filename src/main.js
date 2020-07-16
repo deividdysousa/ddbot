@@ -8,26 +8,23 @@ bot.login(process.env.BOT_TOKEN)
 
 const commands = require('./commands')
 
-bot.on('ready', () => {
-    console.log(`${process.env.BOT_NAME} Esta Logado`)
-    console.log(`Comandos:`)
-    for(let cmd of Object.keys(commands)){
-        console.log(`- ${cmd}`)
-    }
-})
+bot.on('ready', () => console.log(`${process.env.BOT_NAME} on!`))
 
 bot.on('message', msg => {
-    let args = msg.content.split(' ')
+    let args = msg.content.split(' ').map(arg => (arg.toLowerCase()))
     
     if(msg.author.bot) return
     if(args && args[0]!=process.env.BOT_PREFIX) return
 
-    let cmd = args[1].toLowerCase()
-
-    if(commands[cmd] == undefined){
+    if(commands[args[1]] == undefined){
         msg.reply(`Olá ${msg.author.username}, comando não localizado`)
         return
     }
-
-    commands[cmd](bot, msg)
+    
+    try {
+        commands[args[1]](bot, msg, args)
+    } catch (error) {
+        msg.reply(`Ops, ocorreu um erro no processo`)
+        console.log(error)
+    }
 })
